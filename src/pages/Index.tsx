@@ -82,13 +82,16 @@ const Index: React.FC = () => {
       
       setLoading(true);
       try {
-        // Create URL with query parameters
-        const downloadUrl = new URL(API_BASE_URL);
-        downloadUrl.searchParams.append('url', url);
-        downloadUrl.searchParams.append('format', format);
-        downloadUrl.searchParams.append('quality', quality);
+        // Using POST instead of GET for URL downloads
+        const formData = new FormData();
+        formData.append('url', url);
+        formData.append('format', format);
+        formData.append('quality', quality);
         
-        const response = await fetch(downloadUrl.toString());
+        const response = await fetch(API_BASE_URL, {
+          method: 'POST',
+          body: formData,
+        });
         
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
