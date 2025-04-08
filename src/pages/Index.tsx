@@ -8,6 +8,7 @@ import QualitySelector from "@/components/QualitySelector";
 import DownloadButton from "@/components/DownloadButton";
 import { Youtube } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 const Index: React.FC = () => {
   const [url, setUrl] = React.useState<string>("");
@@ -15,15 +16,55 @@ const Index: React.FC = () => {
   const [quality, setQuality] = React.useState<string>("");
   const [isFileMode, setIsFileMode] = React.useState<boolean>(false);
   const [file, setFile] = React.useState<File | null>(null);
+  const [urlError, setUrlError] = React.useState<string | null>(null);
+  const [fileError, setFileError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   const handleDownload = async () => {
-    if (isFileMode && file) {
-      console.log("Downloading from file:", file.name, "Format:", format, "Quality:", quality);
-      // Here you would connect to your API to process the file
-    } else if (url) {
-      console.log("Downloading URL:", url, "Format:", format, "Quality:", quality);
-      // Here you would connect to your API to process the URL
+    if (isFileMode) {
+      if (!file) {
+        setFileError("Please upload a file first");
+        return;
+      }
+      
+      setLoading(true);
+      try {
+        console.log("Downloading from file:", file.name, "Format:", format, "Quality:", quality);
+        // Here you would connect to your API to process the file
+        toast.success("Processing file started!");
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (error) {
+        toast.error("Failed to process file");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      if (!url.trim()) {
+        setUrlError("Please enter a YouTube URL");
+        return;
+      }
+      
+      setLoading(true);
+      try {
+        console.log("Downloading URL:", url, "Format:", format, "Quality:", quality);
+        // Here you would connect to your API to process the URL
+        toast.success("Download started!");
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (error) {
+        toast.error("Failed to download");
+      } finally {
+        setLoading(false);
+      }
     }
+  };
+
+  const handleTabChange = (value: string) => {
+    setIsFileMode(value === "file");
+    // Reset errors when switching tabs
+    setUrlError(null);
+    setFileError(null);
   };
 
   return (
@@ -43,14 +84,23 @@ const Index: React.FC = () => {
         <CardContent className="space-y-6">
           <Tabs defaultValue="url" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="url" onClick={() => setIsFileMode(false)}>URL</TabsTrigger>
-              <TabsTrigger value="file" onClick={() => setIsFileMode(true)}>File Upload</TabsTrigger>
+              <TabsTrigger value="url" onClick={() => handleTabChange("url")}>URL</TabsTrigger>
+              <TabsTrigger value="file" onClick={() => handleTabChange("file")}>File Upload</TabsTrigger>
             </TabsList>
             <TabsContent value="url" className="space-y-4">
-              <UrlInput url={url} setUrl={setUrl} />
+              <UrlInput url={url} setUrl={setUrl} error={urlError} setError={setUrlError} />
             </TabsContent>
             <TabsContent value="file" className="space-y-4">
-              <FileUpload file={file} setFile={setFile} />
+              <FileUpload 
+                file={file} 
+                setFile={(newFile) => {
+                  setFile(newFile);
+                  if (newFile) {
+                    setFileError(null);
+                  }
+                }} 
+                error={fileError}
+              />
             </TabsContent>
           </Tabs>
 
@@ -59,7 +109,11 @@ const Index: React.FC = () => {
             <QualitySelector format={format} quality={quality} setQuality={setQuality} />
           </div>
 
-          <DownloadButton onClick={handleDownload} disabled={isFileMode ? !file : !url} />
+          <DownloadButton 
+            onClick={handleDownload} 
+            disabled={isFileMode ? !file : !url} 
+            loading={loading}
+          />
         </CardContent>
       </Card>
       <p className="text-white text-opacity-70 mt-4 text-sm">
