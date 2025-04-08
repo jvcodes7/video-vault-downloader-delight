@@ -3,13 +3,16 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 interface FileUploadProps {
   file: File | null;
   setFile: (file: File | null) => void;
+  error?: string | null;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ file, setFile }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ file, setFile, error }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +61,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ file, setFile }) => {
       </Label>
       <div
         className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-gray-50 transition-colors ${
-          file ? "border-green-500 bg-green-50" : "border-gray-300"
+          file ? "border-green-500 bg-green-50" : error ? "border-red-500" : "border-gray-300"
         }`}
         onClick={() => fileInputRef.current?.click()}
         onDragOver={handleDragOver}
@@ -78,6 +81,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ file, setFile }) => {
         </p>
         <p className="mt-1 text-xs text-gray-500">CSV, XLSX, or TXT (one URL per line)</p>
       </div>
+      {error && (
+        <Alert variant="destructive" className="p-3 mt-2">
+          <AlertTriangle className="h-4 w-4 mr-2" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 };
