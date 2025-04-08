@@ -10,6 +10,8 @@ import { Youtube } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
+const API_BASE_URL = "https://youtube-dl-api.example.com/api/download"; // Replace with your actual API URL
+
 const Index: React.FC = () => {
   const [url, setUrl] = React.useState<string>("");
   const [format, setFormat] = React.useState<"mp3" | "mp4">("mp4");
@@ -29,13 +31,41 @@ const Index: React.FC = () => {
       
       setLoading(true);
       try {
-        console.log("Downloading from file:", file.name, "Format:", format, "Quality:", quality);
-        // Here you would connect to your API to process the file
-        toast.success("Processing file started!");
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('format', format);
+        formData.append('quality', quality);
+        
+        const response = await fetch(`${API_BASE_URL}/batch`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
+        // Get filename from Content-Disposition header or use a default
+        const contentDisposition = response.headers.get('Content-Disposition');
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(contentDisposition || '');
+        const filename = matches && matches[1] ? matches[1].replace(/['"]/g, '') : `youtube_${format}_batch.zip`;
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        
+        // Create a link and trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        
+        toast.success("Download successful!");
       } catch (error) {
-        toast.error("Failed to process file");
+        console.error("Download error:", error);
+        toast.error("Failed to download. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -45,15 +75,46 @@ const Index: React.FC = () => {
         return;
       }
       
+      if (!quality) {
+        toast.error("Please select a quality option");
+        return;
+      }
+      
       setLoading(true);
       try {
-        console.log("Downloading URL:", url, "Format:", format, "Quality:", quality);
-        // Here you would connect to your API to process the URL
-        toast.success("Download started!");
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Create URL with query parameters
+        const downloadUrl = new URL(API_BASE_URL);
+        downloadUrl.searchParams.append('url', url);
+        downloadUrl.searchParams.append('format', format);
+        downloadUrl.searchParams.append('quality', quality);
+        
+        const response = await fetch(downloadUrl.toString());
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
+        // Get filename from Content-Disposition header or create a default one
+        const contentDisposition = response.headers.get('Content-Disposition');
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(contentDisposition || '');
+        const filename = matches && matches[1] ? matches[1].replace(/['"]/g, '') : `youtube_${format}.${format}`;
+        
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        // Create a link element and trigger download
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        
+        toast.success("Download successful!");
       } catch (error) {
-        toast.error("Failed to download");
+        console.error("Download error:", error);
+        toast.error("Failed to download. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -111,8 +172,9 @@ const Index: React.FC = () => {
 
           <DownloadButton 
             onClick={handleDownload} 
-            disabled={isFileMode ? !file : !url} 
+            disabled={isFileMode ? !file : !url || !quality} 
             loading={loading}
+            format={format}
           />
         </CardContent>
       </Card>

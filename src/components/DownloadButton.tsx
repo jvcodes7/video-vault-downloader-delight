@@ -1,18 +1,20 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, FileVideo, FileAudio } from "lucide-react";
 
 interface DownloadButtonProps {
   onClick: () => void;
   disabled: boolean;
   loading?: boolean;
+  format?: "mp3" | "mp4";
 }
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({ 
   onClick, 
   disabled,
-  loading = false
+  loading = false,
+  format = "mp4"
 }) => {
   return (
     <Button 
@@ -30,7 +32,11 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
         </span>
       ) : (
         <>
-          <Download className="mr-2 h-4 w-4" />
+          {format === "mp3" ? (
+            <FileAudio className="mr-2 h-4 w-4" />
+          ) : (
+            <FileVideo className="mr-2 h-4 w-4" />
+          )}
           Download
         </>
       )}
