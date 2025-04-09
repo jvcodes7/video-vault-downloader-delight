@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UrlInput from "@/components/UrlInput";
@@ -131,8 +132,15 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-main flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-xl">
+    <div className="min-h-screen w-full bg-gradient-main flex flex-col items-center justify-center p-4 relative">
+      {/* Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="text-white text-opacity-10 text-6xl font-bold rotate-[-30deg] select-none">
+          JB Brother Pvt Ltd
+        </div>
+      </div>
+      
+      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-xl relative z-10">
         <CardHeader className="text-center">
           <div className="mx-auto mb-2 bg-red-600 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center">
             <Youtube size={24} />
@@ -180,9 +188,12 @@ const Index: React.FC = () => {
           />
         </CardContent>
       </Card>
-      <p className="text-white text-opacity-70 mt-4 text-sm">
+      <p className="text-white text-opacity-70 mt-4 text-sm z-10">
         For personal and educational use only
       </p>
+      <div className="absolute bottom-2 right-2 text-white text-opacity-50 text-xs z-10">
+        © JB Brother Pvt Ltd
+      </div>
     </div>
   );
 };
