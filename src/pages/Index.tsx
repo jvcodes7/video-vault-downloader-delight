@@ -9,6 +9,7 @@ import DownloadButton from "@/components/DownloadButton";
 import { Youtube } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import MusicSlideshow from "@/components/MusicSlideshow";
 
 const API_BASE_URL = "http://127.0.0.1:5000/api/download"; // Updated to use local server
 
@@ -132,12 +133,20 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-main flex flex-col items-center justify-center p-4 relative">
+    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 flex flex-col items-center justify-center p-4 relative">
+      {/* Animated background */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      
       {/* Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="text-white text-opacity-10 text-6xl font-bold rotate-[-30deg] select-none">
           JB Brother Pvt Ltd
         </div>
+      </div>
+      
+      {/* Slideshow */}
+      <div className="mb-8 w-full max-w-2xl">
+        <MusicSlideshow />
       </div>
       
       <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-xl relative z-10">
@@ -194,6 +203,15 @@ const Index: React.FC = () => {
       <div className="absolute bottom-2 right-2 text-white text-opacity-50 text-xs z-10">
         © JB Brother Pvt Ltd
       </div>
+
+      {/* For the grid pattern in the background */}
+      <style jsx global>{`
+        .bg-grid-pattern {
+          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                           linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+      `}</style>
     </div>
   );
 };
