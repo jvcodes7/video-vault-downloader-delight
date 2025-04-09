@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UrlInput from "@/components/UrlInput";
@@ -10,7 +9,7 @@ import { Youtube } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
-const API_BASE_URL = "https://youtube-dl-api.example.com/api/download"; // Replace with your actual API URL
+const API_BASE_URL = "http://127.0.0.1:5000/api/download"; // Updated to use local server
 
 const Index: React.FC = () => {
   const [url, setUrl] = React.useState<string>("");
