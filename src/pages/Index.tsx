@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UrlInput from "@/components/UrlInput";
@@ -133,23 +132,18 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 flex flex-col items-center justify-center p-4 relative">
-      {/* Animated background */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative">
+      {/* Background Slideshow */}
+      <MusicSlideshow />
       
       {/* Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
         <div className="text-white text-opacity-10 text-6xl font-bold rotate-[-30deg] select-none">
           JB Brother Pvt Ltd
         </div>
       </div>
       
-      {/* Slideshow */}
-      <div className="mb-8 w-full max-w-2xl">
-        <MusicSlideshow />
-      </div>
-      
-      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-xl relative z-10">
+      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-xl relative z-40">
         <CardHeader className="text-center">
           <div className="mx-auto mb-2 bg-red-600 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center">
             <Youtube size={24} />
@@ -197,21 +191,23 @@ const Index: React.FC = () => {
           />
         </CardContent>
       </Card>
-      <p className="text-white text-opacity-70 mt-4 text-sm z-10">
+      <p className="text-white text-opacity-70 mt-4 text-sm z-40">
         For personal and educational use only
       </p>
-      <div className="absolute bottom-2 right-2 text-white text-opacity-50 text-xs z-10">
+      <div className="absolute bottom-2 right-2 text-white text-opacity-50 text-xs z-40">
         © JB Brother Pvt Ltd
       </div>
 
-      {/* For the grid pattern in the background */}
-      <style jsx global>{`
-        .bg-grid-pattern {
-          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                           linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-      `}</style>
+      {/* CSS for grid pattern */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .bg-grid-pattern {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+          }
+        `
+      }} />
     </div>
   );
 };
