@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UrlInput from "@/components/UrlInput";
@@ -163,7 +164,7 @@ const Index: React.FC = () => {
         </div>
       </div>
       
-      <Card className="w-full max-w-2xl backdrop-blur-sm shadow-xl relative z-40 border-2 border-white/50 bg-white/30 dark:bg-white/20">
+      <Card className="w-full max-w-2xl backdrop-blur-sm shadow-xl relative z-40 border-none bg-transparent">
         <CardHeader className="text-center">
           <div className="mx-auto mb-2 bg-red-600 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center">
             <Youtube size={24} />
@@ -175,7 +176,7 @@ const Index: React.FC = () => {
             Download YouTube videos in MP4 or MP3 format
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6 bg-white/70 dark:bg-white/10 rounded-b-lg">
+        <CardContent className="space-y-6">
           <div className="space-y-4">
             <UrlInput 
               url={url} 
