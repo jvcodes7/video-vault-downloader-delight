@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UrlInput from "@/components/UrlInput";
@@ -9,6 +10,7 @@ import { Youtube } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import MusicSlideshow from "@/components/MusicSlideshow";
+import { Progress } from "@/components/ui/progress";
 
 const API_BASE_URL = "http://127.0.0.1:5000/api/download"; // Updated to use local server
 
@@ -21,6 +23,8 @@ const Index: React.FC = () => {
   const [urlError, setUrlError] = React.useState<string | null>(null);
   const [fileError, setFileError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [progress, setProgress] = React.useState<number>(0);
+  const [showProgress, setShowProgress] = React.useState<boolean>(false);
 
   const handleDownload = async () => {
     if (isFileMode) {
@@ -30,16 +34,25 @@ const Index: React.FC = () => {
       }
       
       setLoading(true);
+      setProgress(0);
+      setShowProgress(true);
+      
       try {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('format', format);
         formData.append('quality', quality);
         
+        // Simulating progress for file upload
+        const progressInterval = simulateProgress();
+        
         const response = await fetch(`${API_BASE_URL}/batch`, {
           method: 'POST',
           body: formData,
         });
+        
+        clearInterval(progressInterval);
+        setProgress(100);
         
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
@@ -67,7 +80,10 @@ const Index: React.FC = () => {
         console.error("Download error:", error);
         toast.error("Failed to download. Please try again later.");
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+          setShowProgress(false);
+        }, 1000); // Keep progress visible briefly after completion
       }
     } else {
       if (!url.trim()) {
@@ -81,7 +97,13 @@ const Index: React.FC = () => {
       }
       
       setLoading(true);
+      setProgress(0);
+      setShowProgress(true);
+      
       try {
+        // Simulating progress for URL download
+        const progressInterval = simulateProgress();
+        
         // Using POST instead of GET for URL downloads
         const formData = new FormData();
         formData.append('url', url);
@@ -92,6 +114,9 @@ const Index: React.FC = () => {
           method: 'POST',
           body: formData,
         });
+        
+        clearInterval(progressInterval);
+        setProgress(100);
         
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
@@ -119,9 +144,26 @@ const Index: React.FC = () => {
         console.error("Download error:", error);
         toast.error("Failed to download. Please try again later.");
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+          setShowProgress(false);
+        }, 1000); // Keep progress visible briefly after completion
       }
     }
+  };
+
+  // Function to simulate progress
+  const simulateProgress = () => {
+    return setInterval(() => {
+      setProgress(prevProgress => {
+        // Only update progress if less than 90 (save the last bit for actual completion)
+        if (prevProgress < 90) {
+          const increment = Math.random() * 10;
+          return Math.min(prevProgress + increment, 90);
+        }
+        return prevProgress;
+      });
+    }, 500);
   };
 
   const handleTabChange = (value: string) => {
@@ -182,6 +224,16 @@ const Index: React.FC = () => {
             <FormatSelector format={format} setFormat={setFormat} />
             <QualitySelector format={format} quality={quality} setQuality={setQuality} />
           </div>
+          
+          {showProgress && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-500">
+                <span>Downloading...</span>
+                <span>{Math.round(progress)}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+          )}
 
           <DownloadButton 
             onClick={handleDownload} 
