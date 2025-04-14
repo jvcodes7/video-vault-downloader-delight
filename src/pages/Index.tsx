@@ -164,7 +164,7 @@ const Index: React.FC = () => {
         </div>
       </div>
       
-      <Card className="w-full max-w-2xl backdrop-blur-sm shadow-xl relative z-40 border-none bg-transparent">
+      <Card className="w-full max-w-2xl backdrop-blur-sm shadow-xl relative z-40 border-2 border-white/20 bg-white/10">
         <CardHeader className="text-center">
           <div className="mx-auto mb-2 bg-red-600 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center">
             <Youtube size={24} />
@@ -221,3 +221,4 @@ const Index: React.FC = () => {
 };
 
 export default Index;
+
