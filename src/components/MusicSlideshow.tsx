@@ -9,10 +9,6 @@ const MusicSlideshow: React.FC = () => {
     "https://images.unsplash.com/photo-1504898770365-14faca6a7320?q=80&w=2574&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2670&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1581368135153-a506cf13531c?q=80&w=2670&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2670&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2574&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2670&auto=format&fit=crop"
   ];
 
   useEffect(() => {
@@ -38,7 +34,7 @@ const MusicSlideshow: React.FC = () => {
           }}
         />
       ))}
-      <div className="absolute inset-0 bg-black bg-opacity-75 z-10" />
+      <div className="absolute inset-0 bg-black bg-opacity-60 z-10" />
       
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-grid-pattern opacity-20 z-20"></div>

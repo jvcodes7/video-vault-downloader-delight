@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -11,27 +11,18 @@ interface UrlInputProps {
   setUrl: (url: string) => void;
   error: string | null;
   setError: (error: string | null) => void;
-  placeholder?: string;
 }
 
-const UrlInput: React.FC<UrlInputProps> = ({ 
-  url, 
-  setUrl, 
-  error, 
-  setError, 
-  placeholder = "https://www.youtube.com/watch?v=..." 
-}) => {
+const UrlInput: React.FC<UrlInputProps> = ({ url, setUrl, error, setError }) => {
   const handlePaste = async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
-      
-      // Check if it's a single YouTube URL or multiple URLs
       if (clipboardText.includes("youtube.com") || clipboardText.includes("youtu.be")) {
         setUrl(clipboardText);
         setError(null);
-        toast.success("YouTube URL(s) pasted successfully");
+        toast.success("YouTube URL pasted successfully");
       } else {
-        toast.error("No valid YouTube URLs found in clipboard");
+        toast.error("Not a valid YouTube URL");
       }
     } catch (error) {
       toast.error("Failed to access clipboard");
@@ -41,13 +32,13 @@ const UrlInput: React.FC<UrlInputProps> = ({
 
   return (
     <div className="flex flex-col space-y-2">
-      <label htmlFor="url-input" className="text-sm font-medium text-white">
-        YouTube URLs
+      <label htmlFor="url-input" className="text-sm font-medium">
+        YouTube URL
       </label>
-      <div className="flex flex-col gap-2">
-        <Textarea
+      <div className="flex gap-2">
+        <Input
           id="url-input"
-          placeholder={placeholder}
+          placeholder="https://www.youtube.com/watch?v=..."
           value={url}
           onChange={(e) => {
             setUrl(e.target.value);
@@ -55,9 +46,9 @@ const UrlInput: React.FC<UrlInputProps> = ({
               setError(null);
             }
           }}
-          className={`flex-1 min-h-[100px] bg-black/30 border-gray-700 text-white ${error ? "border-red-500" : ""}`}
+          className={`flex-1 ${error ? "border-red-500" : ""}`}
         />
-        <Button variant="outline" onClick={handlePaste} type="button" className="self-end bg-black/30 text-white border-gray-700 hover:bg-black/50">
+        <Button variant="outline" onClick={handlePaste} type="button">
           Paste
         </Button>
       </div>
