@@ -2,153 +2,88 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UrlInput from "@/components/UrlInput";
-import FileUpload from "@/components/FileUpload";
 import FormatSelector from "@/components/FormatSelector";
 import QualitySelector from "@/components/QualitySelector";
 import DownloadButton from "@/components/DownloadButton";
 import { Youtube } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import MusicSlideshow from "@/components/MusicSlideshow";
 import { Progress } from "@/components/ui/progress";
 
-const API_BASE_URL = "http://127.0.0.1:5000/api/download"; // Updated to use local server
+const API_BASE_URL = "http://127.0.0.1:5000/api/download";
 
 const Index: React.FC = () => {
   const [url, setUrl] = React.useState<string>("");
   const [format, setFormat] = React.useState<"mp3" | "mp4">("mp4");
   const [quality, setQuality] = React.useState<string>("");
-  const [isFileMode, setIsFileMode] = React.useState<boolean>(false);
-  const [file, setFile] = React.useState<File | null>(null);
   const [urlError, setUrlError] = React.useState<string | null>(null);
-  const [fileError, setFileError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [progress, setProgress] = React.useState<number>(0);
   const [showProgress, setShowProgress] = React.useState<boolean>(false);
 
   const handleDownload = async () => {
-    if (isFileMode) {
-      if (!file) {
-        setFileError("Please upload a file first");
-        return;
+    if (!url.trim()) {
+      setUrlError("Please enter a YouTube URL");
+      return;
+    }
+    
+    if (!quality) {
+      toast.error("Please select a quality option");
+      return;
+    }
+    
+    setLoading(true);
+    setProgress(0);
+    setShowProgress(true);
+    
+    try {
+      // Simulating progress for URL download
+      const progressInterval = simulateProgress();
+      
+      // Using POST instead of GET for URL downloads
+      const formData = new FormData();
+      formData.append('url', url);
+      formData.append('format', format);
+      formData.append('quality', quality);
+      
+      const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      clearInterval(progressInterval);
+      setProgress(100);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
       }
       
-      setLoading(true);
-      setProgress(0);
-      setShowProgress(true);
+      // Get filename from Content-Disposition header or create a default one
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      const matches = filenameRegex.exec(contentDisposition || '');
+      const filename = matches && matches[1] ? matches[1].replace(/['"]/g, '') : `youtube_${format}.${format}`;
       
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('format', format);
-        formData.append('quality', quality);
-        
-        // Simulating progress for file upload
-        const progressInterval = simulateProgress();
-        
-        const response = await fetch(`${API_BASE_URL}/batch`, {
-          method: 'POST',
-          body: formData,
-        });
-        
-        clearInterval(progressInterval);
-        setProgress(100);
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        
-        // Get filename from Content-Disposition header or use a default
-        const contentDisposition = response.headers.get('Content-Disposition');
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        const matches = filenameRegex.exec(contentDisposition || '');
-        const filename = matches && matches[1] ? matches[1].replace(/['"]/g, '') : `youtube_${format}_batch.zip`;
-        
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        
-        // Create a link and trigger download
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        
-        toast.success("Download successful!");
-      } catch (error) {
-        console.error("Download error:", error);
-        toast.error("Failed to download. Please try again later.");
-      } finally {
-        setTimeout(() => {
-          setLoading(false);
-          setShowProgress(false);
-        }, 1000); // Keep progress visible briefly after completion
-      }
-    } else {
-      if (!url.trim()) {
-        setUrlError("Please enter a YouTube URL");
-        return;
-      }
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
       
-      if (!quality) {
-        toast.error("Please select a quality option");
-        return;
-      }
+      // Create a link element and trigger download
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
       
-      setLoading(true);
-      setProgress(0);
-      setShowProgress(true);
-      
-      try {
-        // Simulating progress for URL download
-        const progressInterval = simulateProgress();
-        
-        // Using POST instead of GET for URL downloads
-        const formData = new FormData();
-        formData.append('url', url);
-        formData.append('format', format);
-        formData.append('quality', quality);
-        
-        const response = await fetch(API_BASE_URL, {
-          method: 'POST',
-          body: formData,
-        });
-        
-        clearInterval(progressInterval);
-        setProgress(100);
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        
-        // Get filename from Content-Disposition header or create a default one
-        const contentDisposition = response.headers.get('Content-Disposition');
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        const matches = filenameRegex.exec(contentDisposition || '');
-        const filename = matches && matches[1] ? matches[1].replace(/['"]/g, '') : `youtube_${format}.${format}`;
-        
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        // Create a link element and trigger download
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        
-        toast.success("Download successful!");
-      } catch (error) {
-        console.error("Download error:", error);
-        toast.error("Failed to download. Please try again later.");
-      } finally {
-        setTimeout(() => {
-          setLoading(false);
-          setShowProgress(false);
-        }, 1000); // Keep progress visible briefly after completion
-      }
+      toast.success("Download successful!");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download. Please try again later.");
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+        setShowProgress(false);
+      }, 1000); // Keep progress visible briefly after completion
     }
   };
 
@@ -164,13 +99,6 @@ const Index: React.FC = () => {
         return prevProgress;
       });
     }, 500);
-  };
-
-  const handleTabChange = (value: string) => {
-    setIsFileMode(value === "file");
-    // Reset errors when switching tabs
-    setUrlError(null);
-    setFileError(null);
   };
 
   return (
@@ -198,27 +126,7 @@ const Index: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Tabs defaultValue="url" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="url" onClick={() => handleTabChange("url")}>URL</TabsTrigger>
-              <TabsTrigger value="file" onClick={() => handleTabChange("file")}>File Upload</TabsTrigger>
-            </TabsList>
-            <TabsContent value="url" className="space-y-4">
-              <UrlInput url={url} setUrl={setUrl} error={urlError} setError={setUrlError} />
-            </TabsContent>
-            <TabsContent value="file" className="space-y-4">
-              <FileUpload 
-                file={file} 
-                setFile={(newFile) => {
-                  setFile(newFile);
-                  if (newFile) {
-                    setFileError(null);
-                  }
-                }} 
-                error={fileError}
-              />
-            </TabsContent>
-          </Tabs>
+          <UrlInput url={url} setUrl={setUrl} error={urlError} setError={setUrlError} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormatSelector format={format} setFormat={setFormat} />
@@ -237,7 +145,7 @@ const Index: React.FC = () => {
 
           <DownloadButton 
             onClick={handleDownload} 
-            disabled={isFileMode ? !file : !url || !quality} 
+            disabled={!url || !quality} 
             loading={loading}
             format={format}
           />
@@ -265,3 +173,4 @@ const Index: React.FC = () => {
 };
 
 export default Index;
+
