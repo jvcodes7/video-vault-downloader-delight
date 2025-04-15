@@ -151,9 +151,6 @@ const Index: React.FC = () => {
           />
         </CardContent>
       </Card>
-      <p className="text-white text-opacity-70 mt-4 text-sm z-40">
-        For personal and educational use only
-      </p>
       <div className="absolute bottom-2 right-2 text-white text-opacity-50 text-xs z-40">
         © JB Brother Pvt Ltd
       </div>
